@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dualflow"
+version = "0.1.0"
+description = "ReWorld Stage-1: vae_only LTX Video DiT with Internal Guidance."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "accelerate>=1.2.1",
+    "av>=14.2.1",
+    "bitsandbytes>=0.45.2; sys_platform == 'linux'",
+    "decord>=0.6.0; sys_platform == 'linux'",
+    "diffusers>=0.32.1",
+    "matplotlib>=3.8.0",
+    "imageio>=2.37.0",
+    "imageio-ffmpeg>=0.6.0",
+    "opencv-python>=4.11.0.86",
+    "pydantic>=2.10.4",
+    "pyyaml>=6.0",
+    "rich>=13.9.4",
+    "safetensors>=0.5.0",
+    "scipy>=1.11.0",
+    "torch>=2.6.0",
+    "torchvision>=0.21.0",
+    "tqdm>=4.66.0",
+    "typer>=0.15.1",
+    "transformers>=4.40.0",
+]
+
+[project.optional-dependencies]
+dev = ["pre-commit>=4.0.1", "ruff>=0.8.6"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint.isort]
+known-first-party = ["dualflow"]

@@ -1,0 +1,32 @@
+dit_latent_mode: vae_only
+transformer_config: configs/dualflow/transformer_config.json
+dit_checkpoint: /path/to/dualflow_dit_best_loss.safetensors
+vae_model_source: /path/to/LTX-Video-0.9.5
+
+c_vae: 128
+video_width: 768
+video_height: 384
+total_source_frames: 33
+condition_source_frames: 9
+temporal_compression: 8
+spatial_compression: 32
+
+num_inference_steps: 30
+dtype: bf16
+seed: 42
+fps: 8.0
+
+# Option A — batch folder of scene_*_window_000_conditioning.mp4
+conditioning_dir: /path/to/conditioning_videos
+max_scenes: 0   # 0 = all
+output_root: outputs/reworld_stage1_sample
+
+# Option B — explicit list (used only when conditioning_dir is null/omitted)
+# sample_conditioning_video_paths:
+#   - /path/to/scene_0000_window_000_conditioning.mp4
+# output_video_path: outputs/reworld_ig_future_from_condition/videos/example.mp4
+
+# IG at sample time (match Stage-1 training)
+internal_guidance_dit_block: 8
+internal_guidance_sampling_block: 8
+internal_guidance_sampling_scale: 1.4

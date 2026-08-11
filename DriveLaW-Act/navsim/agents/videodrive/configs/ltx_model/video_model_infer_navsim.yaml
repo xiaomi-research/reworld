@@ -1,0 +1,148 @@
+model_name: 'ltx_train'
+is_i2v: True
+report_to: none
+tracker_name: ltx_trainer
+view_mode: "front"
+logging_dir: logs
+output_dir: /path/to/save/logs_and_checkpoints
+pretrained_model_name_or_path: /path/to/LTX-Video-0.9.5
+
+# Attention-weighted cross-modal alignment (training only; inference unchanged)
+cross_modal_align_blocks: [12]
+lambda_cross_modal_align: 0
+cross_modal_align_loss_type: cosine
+cross_modal_align_timestep_max: null
+cross_modal_align_grad_video: false
+
+train_data_class_path: data/agibotworld_dataset.py
+train_data_class: AgiBotWorld
+val_data_class_path: data/agibotworld_dataset.py
+val_data_class: AgiBotWorld
+
+tokenizer_class_path: transformers
+tokenizer_class: T5Tokenizer
+textenc_class_path: transformers
+textenc_class: T5EncoderModel
+vae_class_path: diffusers
+vae_class: AutoencoderKLLTXVideo
+diffusion_model_class_path: navsim.agents.videodrive.video_models.ltx_models.transformer_ltx_ig_anchor
+diffusion_model_class: LTXVideoTransformer3DModelWithIG
+diffusion_scheduler_class_path: diffusers
+diffusion_scheduler_class: FlowMatchEulerDiscreteScheduler
+
+pipeline_class_path: navsim.agents.videodrive.video_models.pipeline.pipeline_ltx_condition
+pipeline_class: LTXConditionPipeline
+
+return_action: true
+return_video: false
+train_mode: 'action_full'
+action_loss_scale: 1.0
+
+train_steps: 200000
+train_epochs: 100
+steps_to_save: 100001
+steps_to_log: 20
+steps_to_val: 500
+
+mixed_precision: bf16
+allow_tf32: False
+nccl_timeout: 600
+seed: 42
+
+enable_slicing: True
+enable_tiling: True
+add_state: False
+caption_dropout_p: 0.06
+
+batch_size: 1
+dataloader_num_workers: 8
+pin_memory: True
+
+gradient_checkpointing: True
+noise_to_first_frame: 0.0
+
+optimizer: adamw
+lr: 3e-5
+beta1: 0.9
+beta2: 0.95
+beta3: 0.999
+epsilon: 1e-8
+weight_decay: 1e-5
+optimizer_8bit: False
+optimizer_torchao: False
+scale_lr: False
+
+max_grad_norm: 1.0
+gradient_accumulation_steps: 1
+
+use_ema: true
+ema_decay: 0.999
+ema_min_decay: 0.0
+use_ema_warmup: true
+ema_inv_gamma: 0.5
+ema_power: 0.75
+ema_update_after_step: 0
+
+lr_scheduler: constant_with_warmup
+lr_warmup_steps: 1000
+lr_num_cycles: 1
+lr_power: 1.0
+
+enable_val: true
+enable_traj_val: false
+
+use_beyonddrive: true
+negative_samples_path: /path/to/negative_sample_results
+beyonddrive_submetric_index: -1
+beyonddrive_submetric_threshold: 0.6
+beyonddrive_use_delta_traj: true
+rde_loss_weight: 0.05
+
+use_train_config_for_eval: true
+enable_pretrain_pdms_eval: false
+enable_pdms_eval: true
+steps_to_pdms_eval: 665
+
+flow_weighting_scheme: none
+flow_logit_mean: 0.0
+flow_logit_std: 1.0
+flow_mode_scale: 1.29
+pixel_wise_timestep: True
+
+diffusion_model:
+  model_path: /path/to/checkpoint/diffusion_pytorch_model.safetensors
+  config:
+    activation_fn: gelu-approximate
+    attention_bias: true
+    attention_head_dim: 64
+    attention_out_bias: true
+    caption_channels: 4096
+    cross_attention_dim: 2048
+    in_channels: 128
+    norm_elementwise_affine: false
+    norm_eps: 1.0e-6
+    num_attention_heads: 32
+    num_layers: 28
+    out_channels: 128
+    patch_size: 1
+    patch_size_t: 1
+    qk_norm: rms_norm_across_heads
+    action_expert: true
+    action_in_channels: 3
+    action_num_attention_heads: 16
+    action_attention_head_dim: 32
+
+use_color_jitter: true
+num_inference_step: 5
+noisy_video: true
+load_weights: true
+
+use_deepspeed: true
+deepspeed:
+  zero_optimization:
+    stage: 1
+  fp16:
+    enabled: false
+  bf16:
+    enabled: true
+  gradient_clipping: 1.0

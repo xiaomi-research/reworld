@@ -1,0 +1,48 @@
+# Stage 1 — Future-Predictive World Representations
+use_dummy_data: false
+video_root: /path/to/training/videos
+transformer_config: configs/dualflow/transformer_config.json
+transformer_weights: /path/to/LTX-Video-0.9.5/transformer/diffusion_pytorch_model.safetensors
+vae_model_source: /path/to/LTX-Video-0.9.5
+c_vae: 128
+dit_latent_mode: vae_only
+
+# Internal Guidance
+lambda_internal_guidance: 1.0
+lambda_internal_guidance_warmup_steps: 0
+internal_guidance_dit_block: 8
+internal_guidance_sampling_block: 8
+internal_guidance_sampling_scale: 1.4
+
+cross_attention_dim: 2048
+null_text_seq_len: 1
+
+log_every_n_steps: 100
+checkpoints:
+  interval: 3000
+  keep_last_n: 10
+  save_best_loss: true
+validation:
+  interval: 0
+  num_batches: 2
+
+max_grad_norm: 1.0
+learning_rate: 0.0001
+steps: 60000
+batch_size: 1
+output_dir: outputs/reworld_stage1
+seed: 42
+dtype: bf16
+total_source_frames: 33
+video_width: 1024
+video_height: 512
+condition_source_frames: 9
+first_frame_conditioning_p: 1.0
+temporal_compression: 8
+spatial_compression: 32
+
+sample_every_n_steps: 100
+sample_num_inference_steps: 30
+sample_conditioning_video_paths:
+  - /path/to/conditioning/scene_0000_window_000_conditioning.mp4
+num_dataloader_workers: 4
