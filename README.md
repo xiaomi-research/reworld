@@ -32,29 +32,21 @@ explicitly optimizing the latent world-to-action pathway.**
 
 ## :bulb: Why ReWorld?
 
-World Action Models chain a **Video DiT** (imagines the future) with an **Action DiT** (plans trajectories on mid-denoising video features). But under standard output-level training, the intermediate states along this world-to-action pathway are mere byproducts — not future-predictive, not cross-modally grounded, and blind to closed-loop behavior quality. We call this the **representation bottleneck of WAMs**.
+World Action Models (WAMs) couple future environment prediction with action generation, yet standard training supervises only the output ends of the generation and planning modules. The intermediate representations that carry world knowledge are shaped only indirectly, as byproducts of fitting these outputs. We call this the **representation bottleneck of WAMs**: the world-to-action pathway is not explicitly optimized to be future-predictive, cross-modally grounded, or sensitive to closed-loop behavior quality.
 
-ReWorld removes the bottleneck with a three-stage curriculum whose supervision comes *entirely from the model's own* generation targets, attended features, and trajectory candidates. One line of math tells the whole story — formation, then transfer, then decision-oriented shaping:
+ReWorld removes this bottleneck by treating intermediate representations as **direct targets of optimization**, through three complementary stages:
 
-$$
-\underbrace{\mathcal{L}_{\mathrm{Gen}} + \lambda_{\mathrm{Mid}}\,\mathcal{L}_{\mathrm{Mid}}}_{\text{Stage 1 · future-predictive video states}}
-\;\Longrightarrow\;
-\underbrace{\mathcal{L}_{\mathrm{FM}} + \lambda_{\mathrm{align}}\,\mathcal{L}_{\mathrm{align}}}_{\text{Stage 2 · world-grounded action states}}
-\;\Longrightarrow\;
-\underbrace{\mathcal{L}_{\mathrm{FM}} + \lambda_{\mathrm{RDE}}\,\mathcal{L}_{\mathrm{RDE}}}_{\text{Stage 3 · behavior-aware action shaping}}
-$$
+- **Stage 1 · Future-predictive world representation** — impose future-flow supervision on intermediate Video DiT states (inspired by [Internal Guidance](https://arxiv.org/abs/2512.24176)). The resulting cross-layer prediction hierarchy enables **self-guided sampling** at inference and yields roughly **2× faster** convergence from scratch.
+- **Stage 2 · World-grounded action representation** — with the Video DiT frozen, align post-cross-attention Action DiT states with their attended video readouts, so that retrieved world information is **retained** in the representations used for planning.
+- **Stage 3 · Behavior-aware action shaping** — jointly fine-tune both branches with hard-negative repulsion: predictions are pushed away from geometrically close yet low-scoring trajectories, separating the expert from nearby unsafe alternatives.
 
-| Stage | In plain terms |
-|:---:|---|
-| **1 · Video Mid / IG** | Middle Video DiT blocks learn to predict the future *directly*, instead of only through the final output. The induced gap between intermediate and final predictions becomes a **free guidance direction** at sampling: $v_w = v_i + \gamma\,(v_f - v_i)$ — and training converges ~2× faster. |
-| **2 · Cross-modal Align** | Video DiT **frozen**. Each action state right after cross-attention is pulled (cosine, stop-grad) toward the video readout it just attended to — retrieved world knowledge is *retained*, not transiently used. |
-| **3 · RDE** | Both branches fine-tuned jointly. The prediction is **repelled from the nearest low-scoring trajectory** in an offline-mined candidate pool, separating the expert from geometrically close but unsafe alternatives. |
+All supervision is constructed entirely from the WAM's own generation targets, attended features, and trajectory candidates — requiring **no external encoders or teacher models** and adding only **0.3%** per-step Video DiT training cost.
+
+> **Why sequential?** The three stages play distinct optimization roles: Stage 1 first establishes future-predictive structure in the video representation; Stage 2 then grounds the action representation in a stable video feature space; Stage 3 finally allows planning-oriented gradients to jointly adapt the Action DiT and the planner-facing Video DiT states. Stage 2 requires stop-gradient readouts derived from frozen video features to establish a stable grounding target, whereas Stage 3 intentionally allows decision-oriented gradients to reshape the planner-facing video states.
 
 <div align="center">
 <img src="assets/reworld_self_guidance.png" width="100%" alt="Self-guided sampling and faster convergence">
 </div>
-
-> **Why sequential?** Stage 2 needs a *frozen* video space as a stable grounding target; Stage 3 *deliberately* lets behavior-oriented gradients reshape the planner-facing video states — so $\mathcal{L}_{\mathrm{align}}$ and $\mathcal{L}_{\mathrm{RDE}}$ are applied in separate stages, never combined.
 
 ## :trophy: Results at a Glance
 
@@ -141,10 +133,10 @@ cd DriveLaW-Act && pip install -e .
 
 Then follow [`DriveLaW-Act/docs/install.md`](DriveLaW-Act/docs/install.md) to download OpenScene / nuPlan maps and set environment variables (`NAVSIM_DEVKIT_ROOT`, `NAVSIM_EXP_ROOT`, `OPENSCENE_DATA_ROOT`, `NUPLAN_MAPS_ROOT`). Place [LTX-Video 0.9.5](https://huggingface.co/Lightricks/LTX-Video) weights locally or point the YAMLs at the HF id.
 
-<details><summary><b>Data preparation</b> (video clips · NAVSIM caches · hard negatives)</summary>
+### Data preparation
 
-- **Stage 1:** point `video_root` in [`configs/dualflow/dit_train.online.example.yaml`](configs/dualflow/dit_train.online.example.yaml) at your driving clips. Paper geometry: 33 frames (9 condition + 24 future), 1024×512, LTX temporal 8 / spatial 32 compression. For IG inference, name conditioning clips `scene_XXXX_window_000_conditioning.mp4`.
-- **Stages 2–3:** cache features and metrics —
+- **Stage 1 (video clips):** point `video_root` in [`configs/dualflow/dit_train.online.example.yaml`](configs/dualflow/dit_train.online.example.yaml) at your driving clips. Paper geometry: 33 frames (9 condition + 24 future), 1024×512, LTX temporal 8 / spatial 32 compression. For IG inference, name conditioning clips `scene_XXXX_window_000_conditioning.mp4`.
+- **Stages 2–3 (NAVSIM caches):** cache features and metrics —
   ```bash
   cd DriveLaW-Act
   sh scripts/evaluation/run_caching_videodrive_hidden_state.sh
@@ -153,82 +145,49 @@ Then follow [`DriveLaW-Act/docs/install.md`](DriveLaW-Act/docs/install.md) to do
   Optional warm-start: pretrained weights on 🤗 [tz2026/ReWorld](https://huggingface.co/tz2026/ReWorld) (base DriveLaW weights: [tz2026/DriveLaW](https://huggingface.co/tz2026/DriveLaW)).
 - **Stage 3 hard negatives:** an offline pool of `{scene_token}.pkl` (`pdm_score_matrix` (N,7) + `pred_trajectorys` (N,L,3)) under `negative_samples_path` — [download](https://drive.google.com/file/d/1M3U5VvhL58QmG91PMr6EH5M6EfPwmRF_/view?usp=drive_link) or generate with [BeyondDrive](https://github.com/wjl2244/BeyondDrive). Format: [`beyonddrive_negatives.py`](DriveLaW-Act/navsim/agents/videodrive/beyonddrive_negatives.py).
 
-</details>
+### Training & inference
 
-### The ReWorld Pipeline
-
-```text
-Stage 1  Video DiT + IG ──► (base Act IL or 🤗 DriveLaW ckpt)
-                                │
-Stage 2  Cross-modal Align ◄────┘   (Video DiT frozen)
-                                │
-Stage 3  RDE joint fine-tune ◄──┘   (+ hard negatives)
-                                │
-                          NAVSIM PDMS eval
-```
-
-**Stage 1 — future-predictive Video DiT**
+**Stage 1 — future-predictive Video DiT** (edit [`configs/dualflow/dit_train.online.example.yaml`](configs/dualflow/dit_train.online.example.yaml): `video_root`, `vae_model_source`, `output_dir`):
 
 ```bash
+# from repo root
 torchrun --nproc_per_node=$RESOURCE_GPU \
   scripts/train_dualflow_dit.py configs/dualflow/dit_train.online.example.yaml
-# key fields: dit_latent_mode: vae_only · lambda_internal_guidance: 1.0
-#             internal_guidance_dit_block: 8 · sampling_scale: 1.4
 ```
 
-**Self-guided video generation**
+**Self-guided video generation** (edit [`configs/dualflow/sample_reworld.yaml`](configs/dualflow/sample_reworld.yaml): `conditioning_dir`, `dit_checkpoint`, `vae_model_source`, `output_root`):
 
 ```bash
-python scripts/generate_reworld_future_from_condition.py \
-  --conditioning-dir /path/to/conditioning_videos \
-  --dit-checkpoint  /path/to/dualflow_dit_best_loss.safetensors \
-  --output-root outputs/reworld_ig_future \
-  --transformer-config configs/dualflow/transformer_vae_dualflow_config.json \
-  --vae-model-source /path/to/LTX-Video-0.9.5 \
-  --ig-scale 1.4 --ig-block 8
+# from repo root
+bash infer_reworld_stage1.sh
 ```
 
-**Stage 2 — cross-modal alignment** (Video DiT frozen)
+**Stage 2 — cross-modal alignment** (Video DiT frozen):
 
 ```bash
-cd DriveLaW-Act && sh scripts/training/run_videodrive_train_stage2_align.sh
-# video_model_train_stage2_align.yaml: lambda_cross_modal_align: 0.05
-#   cross_modal_align_blocks: [12] · use_beyonddrive: false
+cd DriveLaW-Act
+sh scripts/training/run_videodrive_train_stage2_align.sh
 ```
 
-**Stage 3 — RDE with hard negatives** (joint fine-tune, align off)
+**Stage 3 — RDE with hard negatives** (joint fine-tune):
 
 ```bash
-cd DriveLaW-Act && sh scripts/training/run_videodrive_train_stage3_rde.sh
-# video_model_train_stage3_rde.yaml: use_beyonddrive: true
-#   rde_loss_weight: 0.04 · beyonddrive_submetric_threshold: 0.6
+cd DriveLaW-Act
+sh scripts/training/run_videodrive_train_stage3_rde.sh
 ```
 
-**Evaluate** (NAVSIM PDMS)
+**Evaluate** (NAVSIM PDMS):
 
 ```bash
-cd DriveLaW-Act && sh scripts/evaluation/run_videodrive_agent_pdm_score_evaluation.sh
+cd DriveLaW-Act
+sh scripts/evaluation/run_videodrive_agent_pdm_score_evaluation.sh
 ```
 
 > Optional base imitation before Stage 2: `scripts/training/run_videodrive_train.sh` with [`video_model_train_base.yaml`](DriveLaW-Act/navsim/agents/videodrive/configs/ltx_model/video_model_train_base.yaml), or start from the 🤗 DriveLaW checkpoint.
 
-## :file_folder: Repository Map
-
-| Path | Contents |
-|---|---|
-| `src/dualflow/` | Stage-1 Video DiT (`vae_only` latent mode + Internal Guidance) |
-| `configs/dualflow/` | Stage-1 training & IG sampling configs |
-| `scripts/` | Stage-1 training entry + self-guided future generation |
-| `DriveLaW-Act/` | Action planner: base IL, Stage-2 align, Stage-3 RDE, NAVSIM eval |
-| `assets/` / `docs/` | README figures & the [project page](https://xiaomi-research.github.io/ReWorld/) source |
-
-This release contains the **mainline** training/inference code of the three stages. Experimental ablation hooks (REPA, ReDi PCA bridges, dual-latent concat, FID/FVD hooks, planning-side Action IG, LAF scorers) are not included.
-
 ## :pray: Acknowledgments
 
-ReWorld builds on [DriveLaW](https://arxiv.org/abs/2512.23421), [NAVSIM](https://github.com/autonomousvision/navsim), [LTX-Video](https://github.com/Lightricks/LTX-Video), [Diffusers](https://github.com/huggingface/diffusers), and the hard-negative protocol of [BeyondDrive](https://github.com/wjl2244/BeyondDrive). Thanks to all of them for open-sourcing.
-
-This work was in part supported by NSFC U25B2067.
+ReWorld builds on [DriveLaW](https://arxiv.org/abs/2512.23421), [NAVSIM](https://github.com/autonomousvision/navsim), [LTX-Video](https://github.com/Lightricks/LTX-Video), [Diffusers](https://github.com/huggingface/diffusers), and the hard-negative protocol of [BeyondDrive](https://github.com/wjl2244/BeyondDrive). Stage 1 uses intermediate supervision inspired by [Internal Guidance](https://arxiv.org/abs/2512.24176). Thanks to all of them for open-sourcing.
 
 ## :pencil: Citation
 
