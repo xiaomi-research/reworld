@@ -151,8 +151,7 @@ Then follow [`DriveLaW-Act/docs/install.md`](DriveLaW-Act/docs/install.md) to do
 
 ```bash
 # from repo root
-torchrun --nproc_per_node=$RESOURCE_GPU \
-  scripts/train_dualflow_dit.py configs/dualflow/dit_train.online.example.yaml
+bash train_reworld_stage1.sh
 ```
 
 **Self-guided video generation** (edit [`configs/dualflow/sample_reworld.yaml`](configs/dualflow/sample_reworld.yaml): `conditioning_dir`, `dit_checkpoint`, `vae_model_source`, `output_root`):
