@@ -60,6 +60,8 @@ $$
 
 <details open><summary><b>Video generation on nuScenes</b> (val)</summary>
 
+<div align="center">
+
 | Method | FID ↓ | FVD ↓ |
 |:---|:---:|:---:|
 | DriveDreamer | 52.6 | 452.0 |
@@ -68,9 +70,13 @@ $$
 | DriveLaW | 4.6 | 81.3 |
 | **ReWorld (Ours)** | **4.4** | **61.9** |
 
+</div>
+
 </details>
 
 <details open><summary><b>Closed-loop planning on NAVSIM <i>Navtest</i></b></summary>
+
+<div align="center">
 
 | Method | NC ↑ | DAC ↑ | TTC ↑ | Comf. ↑ | EP ↑ | PDMS ↑ |
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -80,6 +86,8 @@ $$
 | WorldDrive | 98.4 | 96.8 | 95.2 | 100 | **83.3** | 89.0 |
 | DriveLaW | 99.0 | 97.1 | 96.7 | 100 | 81.3 | 89.1 |
 | **ReWorld (Ours)** | **99.1** | **98.2** | **97.7** | 99.8 | 82.0 | **90.4** |
+
+</div>
 
 </details>
 
