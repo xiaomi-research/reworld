@@ -74,12 +74,22 @@
   }
   header.hero .wrap { position: relative; z-index: 1; }
   h1.title {
-    font-size: clamp(34px, 5.4vw, 56px);
-    font-weight: 800; letter-spacing: -.02em; line-height: 1.12;
+    display: flex; flex-direction: column; align-items: center;
+    line-height: 1.12;
   }
-  h1.title .grad {
+  h1.title .brand {
+    font-size: clamp(56px, 9vw, 92px);
+    font-weight: 800; letter-spacing: .12em;
+    text-indent: .12em;
     background: linear-gradient(90deg, #a5b4fc, #67e8f9);
     -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  h1.title .expand {
+    margin-top: 10px;
+    font-size: clamp(15px, 2.05vw, 22px);
+    font-weight: 500; letter-spacing: .04em;
+    color: #c8d3ee; line-height: 1.45;
+    white-space: nowrap;
   }
   .subtitle { margin-top: 16px; font-size: 18px; color: #c8d3ee; font-weight: 400; }
 
@@ -276,7 +286,7 @@
     <span class="orb orb-c"></span>
   </div>
   <div class="wrap">
-    <h1 class="title reveal">ReWorld<br>Representation Learning for <span class="grad">World Action Models</span></h1>
+    <h1 class="title reveal"><span class="brand">ReWorld</span><span class="expand">Representation Learning for World Action Models</span></h1>
     <p class="subtitle reveal d1">No external encoders. No teacher models. Only +0.3% training cost.</p>
     <div class="authors reveal d2">
       <span class="author-block"><a href="mailto:xiatianze@hust.edu.cn">Tianze Xia</a><sup>1,2*</sup>,</span>
