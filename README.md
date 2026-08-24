@@ -2,8 +2,7 @@
 
 # ReWorld: Representation Learning for World Action Models
 
-**The first representation learning framework for autonomous-driving World Action Models —<br>
-explicitly optimizing the latent world-to-action pathway.**
+**The first representation learning framework for autonomous-driving World Action Models.**
 
 [![arXiv](https://img.shields.io/badge/arXiv-2606.27504-B31B1B?logo=arxiv)](https://arxiv.org/abs/2606.27504)
 [![Project Page](https://img.shields.io/badge/Project-Page-1f6feb?logo=githubpages)](https://xiaomi-research.github.io/ReWorld/)
