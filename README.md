@@ -36,7 +36,7 @@ World Action Models (WAMs) couple future environment prediction with action gene
 
 ReWorld removes this bottleneck by treating intermediate representations as **direct targets of optimization**, through three complementary stages:
 
-- **Stage 1 · Future-predictive world representation** — impose future-flow supervision on intermediate Video DiT states (inspired by [Internal Guidance](https://arxiv.org/abs/2512.24176)). The resulting cross-layer prediction hierarchy enables **self-guided sampling** at inference and yields roughly **2× faster** convergence from scratch.
+- **Stage 1 · Future-predictive world representation** — impose future-flow supervision on intermediate Video DiT states. The resulting cross-layer prediction hierarchy enables **self-guided sampling** at inference and yields roughly **2× faster** convergence from scratch.
 - **Stage 2 · World-grounded action representation** — with the Video DiT frozen, align post-cross-attention Action DiT states with their attended video readouts, so that retrieved world information is **retained** in the representations used for planning.
 - **Stage 3 · Behavior-aware action shaping** — jointly fine-tune both branches with hard-negative repulsion: predictions are pushed away from geometrically close yet low-scoring trajectories, separating the expert from nearby unsafe alternatives.
 

@@ -18,6 +18,7 @@
     --card: #ffffff;
     --line: #e6e9f0;
     --good: #0e9f6e;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -39,15 +40,39 @@
     position: relative;
     overflow: hidden;
   }
-  header.hero::before {
-    content: "";
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(620px 340px at 18% -10%, rgba(79,70,229,.45), transparent 65%),
-      radial-gradient(560px 300px at 88% 10%, rgba(14,165,233,.35), transparent 60%);
-    pointer-events: none;
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none;
   }
-  header.hero .wrap { position: relative; }
+  .orb {
+    position: absolute; display: block; border-radius: 50%;
+    filter: blur(72px); opacity: .55;
+    animation: orb-float 14s ease-in-out infinite;
+  }
+  .orb-a {
+    width: 420px; height: 420px; left: -120px; top: -80px;
+    background: radial-gradient(circle at 30% 30%, rgba(129,140,248,.85), transparent 65%);
+  }
+  .orb-b {
+    width: 380px; height: 380px; right: -100px; top: 20px;
+    background: radial-gradient(circle at 60% 40%, rgba(34,211,238,.7), transparent 65%);
+    animation-delay: -5s;
+  }
+  .orb-c {
+    width: 300px; height: 300px; left: 50%; top: 48%;
+    transform: translateX(-50%);
+    background: radial-gradient(circle at 50% 50%, rgba(99,102,241,.55), transparent 65%);
+    animation-delay: -9s;
+  }
+  @keyframes orb-float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(0, -18px) scale(1.04); }
+  }
+  .orb-c { animation-name: orb-float-c; }
+  @keyframes orb-float-c {
+    0%, 100% { transform: translateX(-50%) translate(0, 0) scale(1); }
+    50% { transform: translateX(-50%) translate(0, -18px) scale(1.04); }
+  }
+  header.hero .wrap { position: relative; z-index: 1; }
   h1.title {
     font-size: clamp(34px, 5.4vw, 56px);
     font-weight: 800; letter-spacing: -.02em; line-height: 1.12;
@@ -57,10 +82,34 @@
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .subtitle { margin-top: 16px; font-size: 18px; color: #c8d3ee; font-weight: 400; }
-  .authors { margin-top: 26px; font-size: 15.5px; color: #e6ebfa; }
-  .authors a { color: #fff; text-decoration: none; border-bottom: 1px dotted rgba(255,255,255,.5); }
-  .authors .sup, .affiliations .sup { color: #93a5d8; font-size: 11px; }
-  .affiliations { margin-top: 6px; font-size: 14px; color: #aebadd; }
+
+  .authors {
+    margin: 32px auto 0; max-width: 860px;
+    font-size: 18.5px; line-height: 2; color: #eef2ff; font-weight: 500;
+  }
+  .author-block {
+    display: inline-block; margin: 0 8px; white-space: nowrap;
+  }
+  .authors a {
+    color: #fff; text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px; background-position: 0 100%; background-repeat: no-repeat;
+    transition: background-size .25s var(--ease-out);
+  }
+  .authors a:hover { background-size: 100% 1px; }
+  .authors sup, .affiliations sup, .author-notes sup {
+    color: #a5b4fc; font-size: .72em; font-weight: 700; margin-left: 1px;
+  }
+  .affiliations {
+    margin: 18px auto 0; max-width: 720px;
+    font-size: 16.5px; line-height: 1.75; color: #c8d3ee; font-weight: 500;
+  }
+  .aff-block { display: block; margin: 4px 0; }
+  .author-notes {
+    margin-top: 12px; font-size: 15px; color: #aebadd; line-height: 1.7;
+  }
+  .author-notes span { display: inline-block; margin: 0 12px; }
+
   .btn-row { margin-top: 34px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
   .btn {
     display: inline-flex; align-items: center; gap: 8px;
@@ -82,13 +131,21 @@
   }
   .sec-sub { text-align: center; color: var(--ink-soft); max-width: 720px; margin: 0 auto 44px; font-size: 16px; }
   .sec-title .bar { display: block; width: 56px; height: 4px; border-radius: 2px; margin: 14px auto 0;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transform: scaleX(0); transform-origin: center;
+    transition: transform .45s var(--ease-out) .1s; }
+  .sec-title.is-visible .bar { transform: scaleX(1); }
 
   p.lead { font-size: 17px; color: var(--ink-soft); max-width: 880px; margin: 0 auto; }
   p.lead b, p.lead strong { color: var(--ink); }
 
-  figure { text-align: center; }
-  figure img { max-width: 100%; border-radius: 14px; box-shadow: 0 14px 44px rgba(22,32,46,.10); background:#fff; }
+  figure { text-align: center; margin-left: auto; margin-right: auto; }
+  figure img {
+    display: block; max-width: 100%; width: 100%; height: auto;
+    margin-left: auto; margin-right: auto;
+    border-radius: 14px; box-shadow: 0 14px 44px rgba(22,32,46,.10); background:#fff;
+  }
+  figure.overview-fig img { transform: translateX(12px); }
   figcaption { margin-top: 16px; font-size: 14.5px; color: var(--ink-soft); max-width: 860px; margin-left: auto; margin-right: auto; text-align: center; }
   figcaption b { color: var(--ink); }
 
@@ -180,25 +237,69 @@
     text-align: center; padding: 46px 0 54px; color: var(--ink-soft); font-size: 13.5px;
   }
   footer a { color: var(--accent); text-decoration: none; }
+
+  /* ---------- Scroll reveal (DriveLaW-style) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .6s var(--ease-out), transform .6s var(--ease-out);
+  }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .stat.reveal.is-visible:hover,
+  .stage.reveal.is-visible:hover { transform: translateY(-4px); }
+  .reveal.d1 { transition-delay: .06s; }
+  .reveal.d2 { transition-delay: .14s; }
+  .reveal.d3 { transition-delay: .22s; }
+  .reveal.d4 { transition-delay: .30s; }
+  .reveal.d5 { transition-delay: .38s; }
+
+  @media (max-width: 768px) {
+    .authors { font-size: 16.5px; }
+    .affiliations { font-size: 15.5px; }
+    .orb { filter: blur(56px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .orb { animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .sec-title .bar { transform: scaleX(1); transition: none; }
+  }
 </style>
 </head>
 <body>
 
 <!-- ================= HERO ================= -->
 <header class="hero">
+  <div class="hero-bg">
+    <span class="orb orb-a"></span>
+    <span class="orb orb-b"></span>
+    <span class="orb orb-c"></span>
+  </div>
   <div class="wrap">
-    <h1 class="title">ReWorld: Representation Learning<br>for <span class="grad">World Action Models</span></h1>
-    <p class="subtitle">No external encoders. No teacher models. Only +0.3% training cost.</p>
-    <p class="authors">
-      <a href="mailto:xiatianze@hust.edu.cn">Tianze Xia</a><span class="sup">1,2*</sup>,
-      Lijun Zhou<span class="sup">2*</sup>, Kaixin Xiong<span class="sup">2</sup>,
-      Jingfeng Yao<span class="sup">1</sup>, Zhenxin Zhu<span class="sup">2</sup>,
-      Haiyang Sun<span class="sup">2</sup>, Bing Wang<span class="sup">2</sup>,
-      Guang Chen<span class="sup">2</sup>, Wenyu Liu<span class="sup">1</sup>,
-      Hangjun Ye<span class="sup">2</sup>, Xinggang Wang<span class="sup">1†</span>
-    </p>
-    <p class="affiliations"><span class="sup">1</span> Huazhong University of Science and Technology &nbsp;·&nbsp; <span class="sup">2</span> Xiaomi EV &nbsp;·&nbsp; <span class="sup">*</span> Equal contribution &nbsp;·&nbsp; <span class="sup">†</span> Corresponding author</p>
-    <div class="btn-row">
+    <h1 class="title reveal">ReWorld: Representation Learning<br>for <span class="grad">World Action Models</span></h1>
+    <p class="subtitle reveal d1">No external encoders. No teacher models. Only +0.3% training cost.</p>
+    <div class="authors reveal d2">
+      <span class="author-block"><a href="mailto:xiatianze@hust.edu.cn">Tianze Xia</a><sup>1,2*</sup>,</span>
+      <span class="author-block">Lijun Zhou<sup>2*</sup>,</span>
+      <span class="author-block">Kaixin Xiong<sup>2</sup>,</span>
+      <span class="author-block">Jingfeng Yao<sup>1</sup>,</span>
+      <span class="author-block">Zhenxin Zhu<sup>2</sup>,</span>
+      <span class="author-block">Haiyang Sun<sup>2</sup>,</span>
+      <span class="author-block">Bing Wang<sup>2</sup>,</span>
+      <span class="author-block">Guang Chen<sup>2</sup>,</span>
+      <span class="author-block">Wenyu Liu<sup>1</sup>,</span>
+      <span class="author-block">Hangjun Ye<sup>2</sup>,</span>
+      <span class="author-block">Xinggang Wang<sup>1†</sup></span>
+    </div>
+    <div class="affiliations reveal d3">
+      <span class="aff-block"><sup>1</sup> Huazhong University of Science and Technology</span>
+      <span class="aff-block"><sup>2</sup> Xiaomi EV</span>
+    </div>
+    <div class="author-notes reveal d3">
+      <span><sup>*</sup> Equal contribution</span>
+      <span><sup>†</sup> Corresponding author</span>
+    </div>
+    <div class="btn-row reveal d4">
       <a class="btn btn-primary" href="https://arxiv.org/abs/2606.27504">📄&nbsp; Paper</a>
       <a class="btn btn-ghost" href="https://github.com/xiaomi-research/ReWorld">⌥&nbsp; Code</a>
       <a class="btn btn-ghost" href="https://huggingface.co/tz2026/ReWorld">🤗&nbsp; Models</a>
@@ -210,18 +311,18 @@
 <!-- ================= ABSTRACT ================= -->
 <section>
   <div class="wrap">
-    <h2 class="sec-title">Abstract<span class="bar"></span></h2>
-    <p class="lead">
+    <h2 class="sec-title reveal">Abstract<span class="bar"></span></h2>
+    <p class="lead reveal">
       World Action Models (WAMs) unify future environment prediction with action generation for autonomous driving, yet existing approaches optimize only the final outputs, leaving intermediate representations as incidental byproducts.
       <b>ReWorld</b> is the first representation learning framework specifically designed for autonomous-driving WAMs. It explicitly optimizes the latent world-to-action pathway through three complementary mechanisms:
       <b>future-predictive supervision</b> on intermediate Video DiT states, <b>cross-modal alignment</b> of Action DiT states with attended video readouts, and <b>hard-negative repulsion</b> that separates the expert trajectory from nearby unsafe alternatives.
       All supervision is constructed from the WAM's <i>own</i> generation targets and attended features — requiring no external encoders or teacher models and introducing only <b>0.3%</b> additional per-step training cost.
     </p>
     <div class="stats">
-      <div class="stat"><div class="num">61.9 FVD</div><div class="lbl">nuScenes Video Generation<span class="detail">81.3 → 61.9&nbsp;&nbsp;(−23.9%)</span></div></div>
-      <div class="stat"><div class="num">90.4 PDMS</div><div class="lbl">NAVSIM Closed-Loop Planning<span class="detail">89.1 → 90.4&nbsp;&nbsp;·&nbsp;&nbsp;RL-free</span></div></div>
-      <div class="stat"><div class="num">80.2%</div><div class="lbl">UCF-101 Frozen Linear Probe<span class="detail">+11.9 over DriveLaW</span></div></div>
-      <div class="stat"><div class="num">≈2× Faster</div><div class="lbl">From-Scratch Convergence<span class="detail">at only +0.3% per-step cost</span></div></div>
+      <div class="stat reveal"><div class="num">61.9 FVD</div><div class="lbl">nuScenes Video Generation<span class="detail">81.3 → 61.9&nbsp;&nbsp;(−23.9%)</span></div></div>
+      <div class="stat reveal d1"><div class="num">90.4 PDMS</div><div class="lbl">NAVSIM Closed-Loop Planning<span class="detail">89.1 → 90.4&nbsp;&nbsp;·&nbsp;&nbsp;RL-free</span></div></div>
+      <div class="stat reveal d2"><div class="num">80.2%</div><div class="lbl">UCF-101 Frozen Linear Probe<span class="detail">+11.9 over DriveLaW</span></div></div>
+      <div class="stat reveal d3"><div class="num">≈2× Faster</div><div class="lbl">From-Scratch Convergence<span class="detail">at only +0.3% per-step cost</span></div></div>
     </div>
   </div>
 </section>
@@ -229,10 +330,10 @@
 <!-- ================= FRAMEWORK ================= -->
 <section class="alt">
   <div class="wrap">
-    <h2 class="sec-title">Overview<span class="bar"></span></h2>
-    <p class="sec-sub">A Video DiT learns a latent representation of future scene evolution; its mid-denoising states condition an Action DiT for trajectory generation. ReWorld explicitly optimizes this world-to-action pathway in three stages.</p>
-    <figure>
-      <img src="assets/reworld_framework.png" alt="ReWorld framework overview">
+    <h2 class="sec-title reveal">Overview<span class="bar"></span></h2>
+    <p class="sec-sub reveal">A Video DiT learns a latent representation of future scene evolution; its mid-denoising states condition an Action DiT for trajectory generation. ReWorld explicitly optimizes this world-to-action pathway in three stages.</p>
+    <figure class="reveal overview-fig">
+      <img src="assets/reworld_framework.png?v=4" alt="ReWorld framework overview">
       <figcaption><b>Overview of ReWorld.</b> Stage 1 makes intermediate video states future-predictive through L<sub>Mid</sub> and enables self-guided video sampling. Stage 2 freezes the Video DiT and aligns post-cross-attention action states with their attended video readouts through L<sub>align</sub>. Stage 3 jointly fine-tunes both branches with L<sub>RDE</sub>, using geometrically close but low-scoring trajectories to shape behavior-sensitive action representations.</figcaption>
     </figure>
   </div>
@@ -241,20 +342,20 @@
 <!-- ================= METHOD ================= -->
 <section>
   <div class="wrap">
-    <h2 class="sec-title">A Progressive Representation Curriculum<span class="bar"></span></h2>
-    <p class="sec-sub">Three stages with distinct optimization roles — formation, transfer, and decision-oriented shaping — applied sequentially rather than as a single combined objective.</p>
+    <h2 class="sec-title reveal">A Progressive Representation Curriculum<span class="bar"></span></h2>
+    <p class="sec-sub reveal">Three stages with distinct optimization roles — formation, transfer, and decision-oriented shaping — applied sequentially rather than as a single combined objective.</p>
     <div class="stages">
-      <div class="stage" data-n="1">
+      <div class="stage reveal" data-n="1">
         <span class="tag">Future-Predictive World Representation</span>
         <h3>Intermediate Supervision + Self-Guidance</h3>
         <p>Auxiliary heads let intermediate Video DiT blocks predict the future-flow target directly, not just through the final output. The induced cross-layer prediction hierarchy doubles as a free self-guidance signal at sampling — and converges roughly 2× faster.</p>
       </div>
-      <div class="stage" data-n="2">
+      <div class="stage reveal d1" data-n="2">
         <span class="tag">World-Grounded Action Representation</span>
         <h3>Cross-Modal Alignment</h3>
         <p>With the Video DiT frozen, post-cross-attention action states are aligned with the video readouts they just attended to. World knowledge is retained in the states that actually drive trajectory generation, not merely retrieved in passing.</p>
       </div>
-      <div class="stage" data-n="3">
+      <div class="stage reveal d2" data-n="3">
         <span class="tag">Behavior-Aware Action Shaping</span>
         <h3>Repulsive Distance from Hard Negatives</h3>
         <p>Both branches are fine-tuned jointly while predictions are repelled from geometrically close yet low-scoring trajectories mined offline with the NAVSIM simulator — separating expert behavior from nearby unsafe alternatives.</p>
@@ -266,9 +367,9 @@
 <!-- ================= SELF-GUIDANCE ================= -->
 <section>
   <div class="wrap">
-    <h2 class="sec-title">Self-Guided Sampling &amp; Accelerated Convergence<span class="bar"></span></h2>
-    <p class="sec-sub">Intermediate supervision induces a systematic discrepancy between intermediate and final velocity predictions — ReWorld turns it into a free correction direction at inference.</p>
-    <figure>
+    <h2 class="sec-title reveal">Self-Guided Sampling &amp; Accelerated Convergence<span class="bar"></span></h2>
+    <p class="sec-sub reveal">Intermediate supervision induces a systematic discrepancy between intermediate and final velocity predictions — ReWorld turns it into a free correction direction at inference.</p>
+    <figure class="reveal">
       <img src="assets/reworld_self_guidance.png" alt="Self-guided sampling and convergence speedup" style="box-shadow:none; border:1px solid var(--line);">
       <figcaption><b>(a)</b> The self-guided velocity v<sub>w</sub> = v<sub>i</sub> + γ(v<sub>f</sub> − v<sub>i</sub>) uses the cross-layer discrepancy as a correction direction. <b>(b)</b> ReWorld reaches a comparable validation level with approximately half the optimization steps of vanilla flow matching — an ≈2× convergence acceleration, without external encoders or teacher models.</figcaption>
     </figure>
@@ -278,10 +379,10 @@
 <!-- ================= REPRESENTATION ================= -->
 <section>
   <div class="wrap">
-    <h2 class="sec-title">Representation Quality, Measured Directly<span class="bar"></span></h2>
-    <p class="sec-sub">The experiment we care most about — probing the representation itself, not just the outputs it produces.</p>
+    <h2 class="sec-title reveal">Representation Quality, Measured Directly<span class="bar"></span></h2>
+    <p class="sec-sub reveal">The experiment we care most about — probing the representation itself, not just the outputs it produces.</p>
     <div class="repr-grid">
-      <div class="repr-card">
+      <div class="repr-card reveal">
         <h4>Frozen linear probe — UCF-101 action recognition <span>(top-1 %, split 1)</span></h4>
         <div class="bar-row"><span class="bar-label">LTX-Video</span><div class="bar-track"><div class="bar-fill" style="width:66.8%"></div></div><span class="bar-val" style="color:var(--ink-soft)">66.8</span></div>
         <div class="bar-row"><span class="bar-label">DriveLaW</span><div class="bar-track"><div class="bar-fill" style="width:68.3%"></div></div><span class="bar-val" style="color:var(--ink-soft)">68.3</span></div>
@@ -289,7 +390,7 @@
         <div class="bar-row"><span class="bar-label"><b>ReWorld (Full)</b></span><div class="bar-track"><div class="bar-fill hero" style="width:80.2%"></div></div><span class="bar-val" style="color:var(--accent)">80.2</span></div>
         <p class="repr-note">Driving-domain pretraining alone adds only +1.5 over LTX-Video; the representation curriculum adds <b>+11.9</b> — motion structure learned for driving transfers to general action recognition.</p>
       </div>
-      <div class="repr-card">
+      <div class="repr-card reveal d1">
         <h4>Unified from-scratch protocol — nuScenes FVD ↓ <span>(120k steps, nuPlan + nuScenes, no text encoder; bars show reduction vs. Vanilla Flow 304.1)</span></h4>
         <div class="bar-row"><span class="bar-label">Vanilla Flow</span><div class="bar-track"><div class="bar-fill" style="width:1.5%"></div></div><span class="bar-val" style="color:var(--ink-soft)">304.1 <span class="cost">· 1.0×</span></span></div>
         <div class="bar-row"><span class="bar-label">SRA</span><div class="bar-track"><div class="bar-fill" style="width:21%"></div></div><span class="bar-val" style="color:var(--ink-soft)">296.9 <span class="cost">· ~1.4×</span></span></div>
@@ -305,10 +406,10 @@
 <!-- ================= RESULTS ================= -->
 <section class="alt">
   <div class="wrap">
-    <h2 class="sec-title">Results<span class="bar"></span></h2>
-    <p class="sec-sub">Evaluated at all three levels — generation output, closed-loop decision, and representation quality.</p>
+    <h2 class="sec-title reveal">Results<span class="bar"></span></h2>
+    <p class="sec-sub reveal">Evaluated at all three levels — generation output, closed-loop decision, and representation quality.</p>
 
-    <div class="table-card">
+    <div class="table-card reveal">
       <h4>Closed-loop planning on NAVSIM <i>Navtest</i> <span>— best PDMS among world-model planners</span></h4>
       <table>
         <thead><tr><th>Method</th><th>Venue</th><th>NC ↑</th><th>DAC ↑</th><th>TTC ↑</th><th>Comf. ↑</th><th>EP ↑</th><th>PDMS ↑</th></tr></thead>
@@ -328,7 +429,7 @@
     </div>
 
     <div class="grid-2">
-      <div class="table-card">
+      <div class="table-card reveal">
         <h4>Video generation on nuScenes <span>(val)</span></h4>
         <table>
           <thead><tr><th>Method</th><th>FID ↓</th><th>FVD ↓</th></tr></thead>
@@ -343,7 +444,7 @@
           </tbody>
         </table>
       </div>
-      <div class="table-card">
+      <div class="table-card reveal d1">
         <h4>Component ablation <span>(PDMS on Navtest)</span></h4>
         <table>
           <thead><tr><th>Configuration</th><th>L_align</th><th>L_RDE</th><th>PDMS ↑</th></tr></thead>
@@ -358,7 +459,7 @@
     </div>
 
     <div class="grid-2">
-      <div class="table-card">
+      <div class="table-card reveal">
         <h4>Supervised block &amp; guidance scale <span>(FVD on nuScenes)</span></h4>
         <table>
           <thead><tr><th>Supervised block</th><th>FVD ↓</th><th>γ</th><th>FVD ↓</th></tr></thead>
@@ -370,7 +471,7 @@
           </tbody>
         </table>
       </div>
-      <div class="table-card">
+      <div class="table-card reveal d1">
         <h4>Loss weights <span>(PDMS on Navtest; non-monotonic — best as local regularizers)</span></h4>
         <table>
           <thead><tr><th>λ_align (Stage 2)</th><th>PDMS ↑</th><th>λ_RDE (Stage 3)</th><th>PDMS ↑</th></tr></thead>
@@ -390,17 +491,17 @@
 <!-- ================= QUALITATIVE ================= -->
 <section>
   <div class="wrap">
-    <h2 class="sec-title">Qualitative Results<span class="bar"></span></h2>
-    <p class="sec-sub">1s of history (8 frames @ 8Hz) → 3s of generated future (24 frames). Each scene is shown as a DriveLaW–ReWorld pair.</p>
-    <figure>
+    <h2 class="sec-title reveal">Qualitative Results<span class="bar"></span></h2>
+    <p class="sec-sub reveal">1s of history (8 frames @ 8Hz) → 3s of generated future (24 frames). Each scene is shown as a DriveLaW–ReWorld pair.</p>
+    <figure class="reveal">
       <img src="assets/qualitative_contrast.png" alt="Qualitative comparison between DriveLaW and ReWorld">
       <figcaption><b>DriveLaW vs. ReWorld.</b> ReWorld better preserves lane markings, roadside geometry, distant objects, and temporal consistency over the predicted 3-second horizon.</figcaption>
     </figure>
-    <figure style="margin-top:56px;">
+    <figure class="reveal" style="margin-top:56px;">
       <img src="assets/qualitative_more.png" alt="Additional ReWorld video generation results on nuScenes">
       <figcaption><b>More generated futures on nuScenes</b> — sunny and rainy weather, high-speed travel, intersections. Temporally coherent futures with stable geometry, clear lane structure, and consistent multi-agent appearance.</figcaption>
     </figure>
-    <figure style="margin-top:56px;">
+    <figure class="reveal" style="margin-top:56px;">
       <img src="assets/navsim_planning.png" alt="Closed-loop planning visualization on NAVSIM Navtest">
       <figcaption><b>Closed-loop planning on NAVSIM Navtest.</b> From left to right: straight, left turn, right turn, intersection. Red: ReWorld prediction; green: ground-truth expert trajectory.</figcaption>
     </figure>
@@ -410,9 +511,9 @@
 <!-- ================= BIBTEX ================= -->
 <section class="alt" id="bibtex">
   <div class="wrap">
-    <h2 class="sec-title">Citation<span class="bar"></span></h2>
-    <p class="sec-sub">If you find ReWorld useful, please consider citing:</p>
-<pre class="bib">@article{xia2026reworld,
+    <h2 class="sec-title reveal">Citation<span class="bar"></span></h2>
+    <p class="sec-sub reveal">If you find ReWorld useful, please consider citing:</p>
+<pre class="bib reveal">@article{xia2026reworld,
   title   = {ReWorld: Learning Better Representations for World Action Models},
   author  = {Xia, Tianze and Zhou, Lijun and Xiong, Kaixin and Yao, Jingfeng and Zhu, Yu
              and Zhu, Zhenxin and Wang, Bing and Chen, Guang and Ye, Hangjun
@@ -424,11 +525,30 @@
 </section>
 
 <footer>
-  <div class="wrap">
+  <div class="wrap reveal">
     <p>ReWorld builds on <a href="https://arxiv.org/abs/2512.23421">DriveLaW</a>, <a href="https://github.com/autonomousvision/navsim">NAVSIM</a>, <a href="https://github.com/Lightricks/LTX-Video">LTX-Video</a>, <a href="https://github.com/huggingface/diffusers">Diffusers</a> and <a href="https://github.com/wjl2244/BeyondDrive">BeyondDrive</a>.</p>
     <p style="margin-top:8px;">Supported in part by NSFC U25B2067. Contact: <a href="mailto:xiatianze@hust.edu.cn">xiatianze@hust.edu.cn</a> · <a href="mailto:xgwang@hust.edu.cn">xgwang@hust.edu.cn</a></p>
   </div>
 </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(function (el) { el.classList.add('is-visible'); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
+  els.forEach(function (el) { io.observe(el); });
+});
+</script>
 
 </body>
 </html>
