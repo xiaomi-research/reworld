@@ -1,6 +1,6 @@
 <div align="center">
 
-# ReWorld: Representation Learning for World Action Models
+# ReWorld<br>Representation Learning for World Action Models
 
 **The first representation learning framework for autonomous-driving World Action Models.**
 
