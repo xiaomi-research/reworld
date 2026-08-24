@@ -22,6 +22,10 @@
 
 ---
 
+## News
+
+- **`Aug. 25, 2026`:** Code, [weights](https://huggingface.co/tz2026/ReWorld), and [project page](https://xiaomi-research.github.io/reworld/) are released — lower training cost, better results (**FVD 61.9**, **PDMS 90.4**). 🔥
+
 ## :sparkles: Highlights
 
 - **Better futures** — FVD **81.3 → 61.9** (−23.9%) on nuScenes video generation, with self-guided sampling enabled for free by intermediate supervision.
