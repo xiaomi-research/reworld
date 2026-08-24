@@ -186,7 +186,7 @@ sh scripts/evaluation/run_videodrive_agent_pdm_score_evaluation.sh
 
 ## :pray: Acknowledgments
 
-ReWorld builds on [DriveLaW](https://arxiv.org/abs/2512.23421), [NAVSIM](https://github.com/autonomousvision/navsim), [LTX-Video](https://github.com/Lightricks/LTX-Video), [Diffusers](https://github.com/huggingface/diffusers), and the hard-negative protocol of [BeyondDrive](https://github.com/wjl2244/BeyondDrive). Stage 1 uses intermediate supervision inspired by [Internal Guidance](https://arxiv.org/abs/2512.24176). Thanks to all of them for open-sourcing.
+ReWorld builds on [DriveLaW](https://arxiv.org/abs/2512.23421), [NAVSIM](https://github.com/autonomousvision/navsim), [LTX-Video](https://github.com/Lightricks/LTX-Video), [Diffusers](https://github.com/huggingface/diffusers),  [BeyondDrive](https://github.com/wjl2244/BeyondDrive), [Internal Guidance](https://arxiv.org/abs/2512.24176). Thanks to all of them for open-sourcing.
 
 ## :pencil: Citation
 
